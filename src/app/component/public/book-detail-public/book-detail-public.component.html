@@ -1,0 +1,278 @@
+<div *ngIf="book">
+
+  <div class="container">
+    <h1></h1>
+    <div class="card">
+      <div class="container-fliud">
+        <div class="wrapper row">
+          <div class="preview col-md-8">
+            <div class="preview-pic tab-content ">
+              <div class="view overlay zoom tab-pane active " id="pic-1"><img [src]="book.bookPictures[0].src" class="img-fluid " alt="zoom"/></div>
+              <div class=" view overlay zoom tab-pane " id="pic-2"><img src="{{book.bookPictures[1].src}}"/></div>
+              <div class="tab-pane" id="pic-3"><img src="{{book.bookPictures[2].src}} "  class="img-fluid " alt="zoom"/></div>
+              <div class="tab-pane" id="pic-4"><img src="{{book.bookPictures[3].src}}"/></div>
+              <div class="tab-pane" id="pic-5"><img src="{{book.bookPictures[3].src}}"/></div>
+            </div>
+            <ul class="preview-thumbnail nav nav-tabs" >
+              <li class="active"><a data-target="#pic-1" data-toggle="tab"><img src="{{book.bookPictures[0].src}}" /></a></li>
+              <li><a data-target="#pic-2" data-toggle="tab"><img src="{{book.bookPictures[1].src}}" /></a></li>
+              <li><a data-target="#pic-3" data-toggle="tab"><img src="{{book.bookPictures[2].src}}" /></a></li>
+              <li><a data-target="#pic-4" data-toggle="tab"><img src="{{book.bookPictures[3].src}}" /></a></li>
+              <li><a data-target="#pic-5" data-toggle="tab"><img src="{{book.bookPictures[3].src}}" /></a></li>
+            </ul>
+          </div>
+          <div class="details col-md-4">
+            <h3 class="product-title">{{book.name}}</h3>
+            <div class="rating">
+              <div class="stars">
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+              </div>
+              <span class="review-no">2826 reviews</span>
+            </div>
+            <p class="product-description">{{book.name}}</p>
+            <h4 class="price">Giá Hiện Tại :<span>{{book.price}} vnd</span></h4>
+            <!--          <p class="vote"><strong>91%</strong> of buyers enjoyed this product! <strong>(87 votes)</strong></p>-->
+            <h5 class="sizes">Số Lượng :
+              <span class="size" data-toggle="tooltip" title="small">{{book.amount}}</span>
+            </h5>
+            <div class="colors">Giới thiệu: <label> {{book.description}}</label>
+            </div>
+            <div *ngFor="let cart of cartList">
+            <div>Số Lượng :
+              <input type="number" style="grid-auto-columns: auto" [value]="cart.quantity" name="quantity"
+                     (change)="checkNumber($event, cart)" step="1" min="1"></div>
+            <div>Tông Giá :</div>
+            {{cart.book.price * cart.quantity | currency: "VND": "đ "}}>
+          </div>
+
+            <div *ngIf="book.name === book.name" class="action">
+                      <button class="add-to-cart btn btn-default" (click)="addCart(book.id)" data-toggle="modal"
+                              [attr.data-target]="'#addBookToCart' + book.id">Thêm vào giỏ hàng
+                      </button>
+              <button class="like btn btn-default" type="button"><span class="fa fa-heart"></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <input type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#OrderModal" value="mua ngay"
+           *ngIf="token.getToken()">
+    <input type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#OrderModalNoLogin" value="mua ngay"
+           *ngIf="!token.getToken()">
+</div>
+<div [id]="'addBookToCart'+ book.id" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">QT-SHOP </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Sản phẩm {{book.name}} đã được thêm vào giỏ hàng</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="modal fade" id="OrderModal" tabindex="-1" role="dialog" aria-labelledby="OrderModalLabel"
+       aria-hidden="true" *ngIf="token.getToken()">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel"> </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>Vui lòng nhập thông tin giao hàng</h3>
+          <form class="card" *ngIf="order" [formGroup]="cartForm">
+            <div class="form-group">
+              <label>Số điện thoại của bạn</label>
+              <input type="text" class="form-control" formControlName="phone" (change)="onChangePhone($event)">
+              <div class="alert-danger" *ngIf="cartForm.get('phone').invalid && cartForm.get('phone').touched"
+                   style="color: red">
+                Không phải là số điện thoại tiếng việt
+              </div>
+            </div>
+            <div>
+              <label>Địa chỉ giao hàng</label>
+              <input type="text" class="form-control" formControlName="address" (change)="onChangeAddress($event)">
+              <div class="alert-danger" *ngIf="cartForm.get('address').invalid && cartForm.get('address').touched"
+                   style="color: red">
+                Địa chỉ phải có ít nhất 3 ký tự
+              </div>
+            </div>
+            <div class="form-group">
+              <strong>Thanh toán</strong>
+              <select class="form-control" formControlName="payment">
+                <option *ngFor="let payment of paymentList" value="{{payment.id}}">{{payment.name}}</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <input type="button" class="btn btn-secondary" data-dismiss="modal" value="Close">
+              <button [disabled]="cartForm.invalid" data-dismiss="modal" type="button" class="btn btn-primary"
+                      (click)="createOrder()">Save
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="OrderModalNoLogin" tabindex="-1" role="dialog" aria-labelledby="OrderModalLabel"
+       aria-hidden="true" *ngIf="!token.getToken()">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">QT-SHOP </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>Bạn có muốn tạo tài khoản để mua sau không??</h3>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
+                  data-target="#OrderModalNoSignUp">No
+          </button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal"
+                  data-target="#OrderModalSignUp">Yes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="OrderModalNoSignUp" tabindex="-1" role="dialog" aria-labelledby="OrderModalLabel"
+       aria-hidden="true" *ngIf="!token.getToken()">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">QT-SHOP </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>Vui lòng nhập thông tin giao hàng</h3>
+          <form class="card" *ngIf="order" [formGroup]="cartForm">
+            <div class="form-group">
+              <strong>Số điện thoại của bạn</strong>
+              <input type="text" class="form-control" formControlName="phone" (change)="onChangePhone($event)">
+              <div class="alert-danger" *ngIf="cartForm.get('phone').invalid && cartForm.get('phone').touched"
+                   style="color: red">
+                Không phải là số điện thoại tiếng việt
+              </div>
+            </div>
+            <div class="form-group">
+              <strong>Địa chỉ giao hàng</strong>
+              <input type="text" class="form-control" formControlName="address" (change)="onChangeAddress($event)">
+              <div class="alert-danger" *ngIf="cartForm.get('address').invalid && cartForm.get('address').touched"
+                   style="color: red">
+                Địa chỉ phải có ít nhất 3 ký tự
+              </div>
+            </div>
+            <div class="form-group">
+              <strong>Thanh toán</strong>
+              <select class="form-control" formControlName="payment">
+                <option *ngFor="let payment of paymentList" value="{{payment.id}}">{{payment.name}}</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <input type="button" class="btn btn-secondary" data-dismiss="modal" value="Close">
+              <button [disabled]="cartForm.get('address').invalid || cartForm.get('phone').invalid" data-dismiss="modal"
+                      type="button" class="btn btn-primary" (click)="createOrder()">Save
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="OrderModalSignUp" tabindex="-1" role="dialog" aria-labelledby="OrderModalLabel"
+       aria-hidden="true" *ngIf="!token.getToken()">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">QT-SHOP</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>Vui lòng nhập thông tin giao hàng</h3>
+          <form class="card" *ngIf="order" [formGroup]="cartForm">
+            <div class="form-group">
+              <label>Tên tài khoản</label>
+              <input type="text" class="form-control" formControlName="username">
+              <div class="alert-danger" *ngIf="cartForm.get('username').invalid && cartForm.get('username').touched"
+                   style="color: red">
+                Tên người dùng phải dài từ 3 đến 20 ký tự
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Mật khẩu</label>
+              <input type="password" class="form-control" formControlName="password">
+              <div class="alert-danger" *ngIf="cartForm.get('password').invalid && cartForm.get('password').touched"
+                   style="color: red">
+                mật khẩu phải ít nhất 6 kí tự
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" class="form-control" formControlName="email">
+              <div class="alert-danger" *ngIf="cartForm.get('email').invalid && cartForm.get('email').touched"
+                   style="color: red">
+                Email phải là một địa chỉ email hợp lệ
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Số điện thoại của bạn</label>
+              <input type="text" class="form-control" formControlName="phone" (change)="onChangePhone($event)">
+              <div class="alert-danger" *ngIf="cartForm.get('phone').invalid && cartForm.get('phone').touched"
+                   style="color: red">
+                Không phải là số điện thoại tiếng việt
+              </div>
+            </div>
+            <div>
+              <label>Địa chỉ giao hàng</label>
+              <input type="text" class="form-control" formControlName="address" (change)="onChangeAddress($event)">
+              <div class="alert-danger" *ngIf="cartForm.get('address').invalid && cartForm.get('address').touched"
+                   style="color: red">
+                Địa chỉ phải có ít nhất 3 ký tự
+              </div>
+            </div>
+            <div class="form-group">
+              <strong>Thanh toán</strong>
+              <select class="form-control" formControlName="payment">
+                <option *ngFor="let payment of paymentList" value="{{payment.id}}">{{payment.name}}</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <input type="button" class="btn btn-secondary" data-dismiss="modal" value="Close">
+              <button [disabled]="cartForm.invalid" data-dismiss="modal" type="button" class="btn btn-primary"
+                      (click)="createUser()">Lưu
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
